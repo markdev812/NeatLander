@@ -1,35 +1,35 @@
-﻿using UnityEngine;
-using System.Collections;
-using SharpNeat.Core;
+﻿using SharpNeat.Core;
 using SharpNeat.Phenomes;
+using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace SharpNeatLander
 {
-    public delegate double FitnessFunction(IBlackBox box);
+    // public delegate float FitnessFunction(IBlackBox box);
 
     /// <summary>
 
     /// </summary>
-    public class MyEvaluator : IPhenomeEvaluator<IBlackBox>
+    public class NeatEvaluator : IPhenomeEvaluator<IBlackBox>
     {
         private readonly bool _hasStopFitness;
-        private readonly double _stopFitness;
+        private readonly float _stopFitness;
         ulong _evalCount;
         bool _stopConditionSatisfied;
 
-        private readonly FitnessFunction _fitnessFunction;
+        private readonly NeatOptimizer _optimizer;
 
         Dictionary<IBlackBox, FitnessInfo> _dict = new Dictionary<IBlackBox, FitnessInfo>();
 
-        public MyEvaluator(FitnessFunction f)
+        public NeatEvaluator(NeatOptimizer optimizer)
         {
-            _fitnessFunction = f;
+            _optimizer = optimizer;
             _hasStopFitness = false;
         }
-        public MyEvaluator(FitnessFunction f, double stopFitness)
+        public NeatEvaluator(NeatOptimizer optimizer, float stopFitness)
         {
-            _fitnessFunction = f;
+            _optimizer = optimizer;
             _stopFitness = stopFitness;
             _hasStopFitness = true;
         }
@@ -57,27 +57,21 @@ namespace SharpNeatLander
         /// </summary>
         public IEnumerator Evaluate(IBlackBox box)
         {
-            double fitness = 0;
-
-            _evalCount++;
-
-            box.ResetState();
-
-
-            if (_fitnessFunction != null)
+            if (_optimizer != null)
             {
-                fitness = _fitnessFunction(box);
-                yield return new WaitForSeconds(30);
+
+                _optimizer.Evaluate(box);
+                yield return new WaitForSeconds(_optimizer.LearningDuration);
+                _optimizer.StopEvaluation(box);
+                float fit = _optimizer.GetFitness(box);
+
+                FitnessInfo fitness = new FitnessInfo(fit, fit);
+                _dict.Add(box, fitness);
+
             }
 
-            if (_hasStopFitness && fitness >= _stopFitness)
-            {
-                _stopConditionSatisfied = true;
-            }
 
-            FitnessInfo fitInfo = new FitnessInfo(fitness, fitness);
-            _dict.Add(box, fitInfo);
-            
+
         }
 
         /// <summary>

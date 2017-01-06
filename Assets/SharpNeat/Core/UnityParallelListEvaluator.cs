@@ -16,7 +16,7 @@ namespace SharpNEAT.Core
         readonly IGenomeDecoder<TGenome, TPhenome> _genomeDecoder;
         IPhenomeEvaluator<TPhenome> _phenomeEvaluator;
         //readonly IPhenomeEvaluator<TPhenome> _phenomeEvaluator;
-        Optimizer _optimizer;
+        LanderOptimizer _optimizer;
 
         #region Constructor
 
@@ -25,7 +25,7 @@ namespace SharpNEAT.Core
         /// </summary>
         public UnityParallelListEvaluator(IGenomeDecoder<TGenome, TPhenome> genomeDecoder,
                                          IPhenomeEvaluator<TPhenome> phenomeEvaluator,
-                                          Optimizer opt)
+                                          LanderOptimizer opt)
         {
             _genomeDecoder = genomeDecoder;
             _phenomeEvaluator = phenomeEvaluator;

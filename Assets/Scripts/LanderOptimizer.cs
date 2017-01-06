@@ -1,17 +1,17 @@
-﻿using UnityEngine;
-using System.Collections;
-using SharpNeat.Phenomes;
-using System.Collections.Generic;
-using SharpNeat.EvolutionAlgorithms;
+﻿using SharpNeat.EvolutionAlgorithms;
 using SharpNeat.Genomes.Neat;
+using SharpNeat.Phenomes;
 using System;
-using System.Xml;
+using System.Collections.Generic;
 using System.IO;
+using System.Xml;
+using UnityEngine;
 
-public class Optimizer : MonoBehaviour {
+public class LanderOptimizer : MonoBehaviour
+{
 
-    const int NUM_INPUTS = 5;
-    const int NUM_OUTPUTS = 2;
+    const int NUM_INPUTS = 3;
+    const int NUM_OUTPUTS = 1;
 
     public int Trials;
     public float TrialDuration;
@@ -19,7 +19,7 @@ public class Optimizer : MonoBehaviour {
     bool EARunning;
     string popFileSavePath, champFileSavePath;
 
-    SimpleExperiment experiment;
+    LanderExperiment experiment;
     static NeatEvolutionAlgorithm<NeatGenome> _ea;
 
     public GameObject Unit;
@@ -34,27 +34,28 @@ public class Optimizer : MonoBehaviour {
     private uint Generation;
     private double Fitness;
 
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    void Start()
+    {
         Utility.DebugLog = true;
-        experiment = new SimpleExperiment();
+        experiment = new LanderExperiment();
         XmlDocument xmlConfig = new XmlDocument();
         TextAsset textAsset = (TextAsset)Resources.Load("experiment.config");
         xmlConfig.LoadXml(textAsset.text);
         experiment.SetOptimizer(this);
 
-        experiment.Initialize("Car Experiment", xmlConfig.DocumentElement, NUM_INPUTS, NUM_OUTPUTS);
+        experiment.Initialize("Lander Experiment", xmlConfig.DocumentElement, NUM_INPUTS, NUM_OUTPUTS);
 
-        champFileSavePath = Application.persistentDataPath + string.Format("/{0}.champ.xml", "car");
-        popFileSavePath = Application.persistentDataPath + string.Format("/{0}.pop.xml", "car");       
+        champFileSavePath = Application.persistentDataPath + string.Format("/{0}.champ.xml", "lander");
+        popFileSavePath = Application.persistentDataPath + string.Format("/{0}.pop.xml", "lander");
 
         print(champFileSavePath);
-	}
+    }
 
     // Update is called once per frame
     void Update()
     {
-      //  evaluationStartTime += Time.deltaTime;
+        //  evaluationStartTime += Time.deltaTime;
 
         timeLeft -= Time.deltaTime;
         accum += Time.timeScale / Time.deltaTime;
@@ -76,9 +77,9 @@ public class Optimizer : MonoBehaviour {
     }
 
     public void StartEA()
-    {        
+    {
         Utility.DebugLog = true;
-        Utility.Log("Starting PhotoTaxis experiment");
+        Utility.Log("Starting Lander experiment");
         // print("Loading: " + popFileLoadPath);
         _ea = experiment.CreateEvolutionAlgorithm(popFileSavePath);
         startTime = DateTime.Now;
@@ -88,8 +89,8 @@ public class Optimizer : MonoBehaviour {
 
         var evoSpeed = 25;
 
-     //   Time.fixedDeltaTime = 0.045f;
-        Time.timeScale = evoSpeed;       
+        //   Time.fixedDeltaTime = 0.045f;
+        Time.timeScale = evoSpeed;
         _ea.StartContinue();
         EARunning = true;
     }
@@ -101,11 +102,11 @@ public class Optimizer : MonoBehaviour {
 
         Fitness = _ea.Statistics._maxFitness;
         Generation = _ea.CurrentGeneration;
-      
 
-    //    Utility.Log(string.Format("Moving average: {0}, N: {1}", _ea.Statistics._bestFitnessMA.Mean, _ea.Statistics._bestFitnessMA.Length));
 
-    
+        //    Utility.Log(string.Format("Moving average: {0}, N: {1}", _ea.Statistics._bestFitnessMA.Mean, _ea.Statistics._bestFitnessMA.Length));
+
+
     }
 
     void ea_PauseEvent(object sender, EventArgs e)
@@ -136,11 +137,11 @@ public class Optimizer : MonoBehaviour {
         Utility.Log("Total time elapsed: " + (endTime - startTime));
 
         System.IO.StreamReader stream = new System.IO.StreamReader(popFileSavePath);
-       
 
-      
-        EARunning = false;        
-        
+
+
+        EARunning = false;
+
     }
 
     public void StopEA()

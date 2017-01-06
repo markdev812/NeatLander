@@ -18,7 +18,7 @@ namespace SharpNeatLander
     /// <summary>
     /// INeatExperiment for the XOR logic gate problem domain. 
     /// </summary>
-    public class MyExperiment //: IGuiNeatExperiment
+    public class NeatExperiment //: IGuiNeatExperiment
     {
         //private static readonly ILog __log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
@@ -36,10 +36,11 @@ namespace SharpNeatLander
         string _description;
         //ParallelOptions _parallelOptions;
 
-        private FitnessFunction _fitnessFunction;
-        private double _stopFitness;
+        private NeatOptimizer _optimizer;
+        private float _stopFitness;
 
         private string _champFile;
+
 
         /// <summary>
         /// Gets the name of the experiment.
@@ -136,10 +137,11 @@ namespace SharpNeatLander
 
 
         ///
-        public NeatEvolutionAlgorithm<NeatGenome> CreateSimpleEA(string name, int inputCount, int outputCount, FitnessFunction fitnessFunction, double stopFitness = -1)
+        public NeatEvolutionAlgorithm<NeatGenome> CreateSimpleEA(string name, int inputCount, int outputCount, NeatOptimizer optimizer, float stopFitness = -1)
         {
+            _optimizer = optimizer;
             _stopFitness = stopFitness;
-            _fitnessFunction = fitnessFunction;
+            // _fitnessFunction = fitnessFunction;
             //init with simple defaults
             Initialize(name, inputCount, outputCount);
 
@@ -263,11 +265,11 @@ namespace SharpNeatLander
             NeatEvolutionAlgorithm<NeatGenome> ea = new NeatEvolutionAlgorithm<NeatGenome>(_eaParams, speciationStrategy, complexityRegulationStrategy);
 
             // Create IBlackBox evaluator.
-            MyEvaluator evaluator;
+            NeatEvaluator evaluator;
             if (_stopFitness >= 0)
-                evaluator = new MyEvaluator(_fitnessFunction, _stopFitness);
+                evaluator = new NeatEvaluator(_optimizer, _stopFitness);
             else
-                evaluator = new MyEvaluator(_fitnessFunction);
+                evaluator = new NeatEvaluator(_optimizer);
 
 
             // Create genome decoder.

@@ -1,14 +1,15 @@
-﻿using UnityEngine;
-using System.Collections;
-using SharpNeat.Core;
+﻿using SharpNeat.Core;
 using SharpNeat.Phenomes;
+using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 
-public class SimpleEvaluator : IPhenomeEvaluator<IBlackBox> {
+public class LanderEvaluator : IPhenomeEvaluator<IBlackBox>
+{
 
-	ulong _evalCount;
+    ulong _evalCount;
     bool _stopConditionSatisfied;
-    Optimizer optimizer;
+    LanderOptimizer optimizer;
     FitnessInfo fitness;
 
     Dictionary<IBlackBox, FitnessInfo> dict = new Dictionary<IBlackBox, FitnessInfo>();
@@ -23,7 +24,7 @@ public class SimpleEvaluator : IPhenomeEvaluator<IBlackBox> {
         get { return _stopConditionSatisfied; }
     }
 
-    public SimpleEvaluator(Optimizer se)
+    public LanderEvaluator(LanderOptimizer se)
     {
         this.optimizer = se;
     }
@@ -37,10 +38,10 @@ public class SimpleEvaluator : IPhenomeEvaluator<IBlackBox> {
             yield return new WaitForSeconds(optimizer.TrialDuration);
             optimizer.StopEvaluation(box);
             float fit = optimizer.GetFitness(box);
-           
+
             FitnessInfo fitness = new FitnessInfo(fit, fit);
             dict.Add(box, fitness);
-           
+
         }
     }
 
@@ -52,7 +53,7 @@ public class SimpleEvaluator : IPhenomeEvaluator<IBlackBox> {
 
     public FitnessInfo GetLastFitness()
     {
-        
+
         return this.fitness;
     }
 
@@ -63,10 +64,10 @@ public class SimpleEvaluator : IPhenomeEvaluator<IBlackBox> {
         {
             FitnessInfo fit = dict[phenome];
             dict.Remove(phenome);
-           
+
             return fit;
         }
-        
+
         return FitnessInfo.Zero;
     }
 }

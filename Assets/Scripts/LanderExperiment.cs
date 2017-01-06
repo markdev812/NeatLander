@@ -1,21 +1,19 @@
-﻿using UnityEngine;
-using System.Collections;
-using SharpNeat.Domains;
-using SharpNeat.EvolutionAlgorithms;
-using SharpNeat.Genomes.Neat;
+﻿using SharpNeat.Core;
 using SharpNeat.Decoders;
-using System.Collections.Generic;
-using System.Xml;
-using SharpNeat.Core;
-using SharpNeat.Phenomes;
 using SharpNeat.Decoders.Neat;
 using SharpNeat.DistanceMetrics;
-using SharpNeat.SpeciationStrategies;
+using SharpNeat.Domains;
+using SharpNeat.EvolutionAlgorithms;
 using SharpNeat.EvolutionAlgorithms.ComplexityRegulation;
+using SharpNeat.Genomes.Neat;
+using SharpNeat.Phenomes;
+using SharpNeat.SpeciationStrategies;
 using SharpNEAT.Core;
 using System;
+using System.Collections.Generic;
+using System.Xml;
 
-public class SimpleExperiment : INeatExperiment
+public class LanderExperiment : INeatExperiment
 {
 
     NeatEvolutionAlgorithmParameters _eaParams;
@@ -27,7 +25,7 @@ public class SimpleExperiment : INeatExperiment
     string _complexityRegulationStr;
     int? _complexityThreshold;
     string _description;
-    Optimizer _optimizer;
+    LanderOptimizer _optimizer;
     int _inputCount;
     int _outputCount;
 
@@ -66,7 +64,7 @@ public class SimpleExperiment : INeatExperiment
         get { return _neatGenomeParams; }
     }
 
-    public void SetOptimizer(Optimizer se)
+    public void SetOptimizer(LanderOptimizer se)
     {
         this._optimizer = se;
     }
@@ -74,7 +72,7 @@ public class SimpleExperiment : INeatExperiment
 
     public void Initialize(string name, XmlElement xmlConfig)
     {
-        Initialize(name, xmlConfig, 6, 3);
+        Initialize(name, xmlConfig, 3, 1);
     }
 
     public void Initialize(string name, XmlElement xmlConfig, int input, int output)
@@ -170,7 +168,7 @@ public class SimpleExperiment : INeatExperiment
         NeatEvolutionAlgorithm<NeatGenome> ea = new NeatEvolutionAlgorithm<NeatGenome>(_eaParams, speciationStrategy, complexityRegulationStrategy);
 
         // Create black box evaluator       
-        SimpleEvaluator evaluator = new SimpleEvaluator(_optimizer);
+        LanderEvaluator evaluator = new LanderEvaluator(_optimizer);
 
         IGenomeDecoder<NeatGenome, IBlackBox> genomeDecoder = CreateGenomeDecoder();
 
