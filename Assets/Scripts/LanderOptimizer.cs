@@ -16,6 +16,8 @@ public class LanderOptimizer : MonoBehaviour
     public int Trials;
     public float TrialDuration;
     public float StoppingFitness;
+    public float EVOSpeed = 25;
+
     bool EARunning;
     string popFileSavePath, champFileSavePath;
 
@@ -30,9 +32,11 @@ public class LanderOptimizer : MonoBehaviour
     private float accum;
     private int frames;
     private float updateInterval = 12;
+    private float _fps;
 
     private uint Generation;
     private double Fitness;
+    private static float _bestFitness;
 
     // Use this for initialization
     void Start()
@@ -63,12 +67,12 @@ public class LanderOptimizer : MonoBehaviour
 
         if (timeLeft <= 0.0)
         {
-            var fps = accum / frames;
+            _fps = accum / frames;
             timeLeft = updateInterval;
             accum = 0.0f;
             frames = 0;
             //   print("FPS: " + fps);
-            if (fps < 10)
+            if (_fps < 10)
             {
                 Time.timeScale = Time.timeScale - 1;
                 print("Lowering time scale to " + Time.timeScale);
@@ -87,10 +91,10 @@ public class LanderOptimizer : MonoBehaviour
         _ea.UpdateEvent += new EventHandler(ea_UpdateEvent);
         _ea.PausedEvent += new EventHandler(ea_PauseEvent);
 
-        var evoSpeed = 25;
+
 
         //   Time.fixedDeltaTime = 0.045f;
-        Time.timeScale = evoSpeed;
+        Time.timeScale = EVOSpeed;
         _ea.StartContinue();
         EARunning = true;
     }
@@ -155,6 +159,7 @@ public class LanderOptimizer : MonoBehaviour
 
     public void Evaluate(IBlackBox box)
     {
+        //Debug.Log("Creating GO");
         GameObject obj = Instantiate(Unit, Unit.transform.position, Unit.transform.rotation) as GameObject;
         UnitController controller = obj.GetComponent<UnitController>();
 
@@ -210,7 +215,10 @@ public class LanderOptimizer : MonoBehaviour
     {
         if (ControllerMap.ContainsKey(box))
         {
-            return ControllerMap[box].GetFitness();
+            float fit = ControllerMap[box].GetFitness();
+            if (fit > _bestFitness)
+                _bestFitness = fit;
+            return fit;
         }
         return 0;
     }
@@ -230,6 +238,6 @@ public class LanderOptimizer : MonoBehaviour
             RunBest();
         }
 
-        GUI.Button(new Rect(10, Screen.height - 70, 100, 60), string.Format("Generation: {0}\nFitness: {1:0.00}", Generation, Fitness));
+        GUI.Button(new Rect(10, Screen.height - 70, 150, 60), string.Format("Generation: {0}\nFitness: {1:0.00}\nbestFitness: {2:0.00}\nFPS: {3:0.0}", Generation, Fitness, _bestFitness, _fps));
     }
 }
