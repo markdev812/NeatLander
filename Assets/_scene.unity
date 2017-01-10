@@ -879,12 +879,17 @@ Prefab:
     - target: {fileID: 114406584574440244, guid: 95f99a90a6be37f46b395ecc61f8b620,
         type: 2}
       propertyPath: AIControlled
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 114406584574440244, guid: 95f99a90a6be37f46b395ecc61f8b620,
         type: 2}
       propertyPath: StartingFuel
       value: 200
+      objectReference: {fileID: 0}
+    - target: {fileID: 50700244816194314, guid: 95f99a90a6be37f46b395ecc61f8b620,
+        type: 2}
+      propertyPath: m_AngularDrag
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 95f99a90a6be37f46b395ecc61f8b620, type: 2}

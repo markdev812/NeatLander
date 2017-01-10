@@ -27,6 +27,7 @@ public class LanderControllerGame : MonoBehaviour
     private float _fuel;
     private float _velocity;
     private float lastTime = -1;
+    private float _torque;
 
     private Rigidbody2D rb;
 
@@ -65,6 +66,7 @@ public class LanderControllerGame : MonoBehaviour
     // Update is called once per frame
     private void FixedUpdate()
     {
+        var rb = GetComponent<Rigidbody2D>();
 
         if (_landed)
             return;
@@ -81,13 +83,16 @@ public class LanderControllerGame : MonoBehaviour
 
 
 
-        _velocity = GetComponent<Rigidbody2D>().velocity.y;
+        _velocity = rb.velocity.y;
+
 
         //_velocity += ((_thrust + Gravity) * Time.fixedDeltaTime);
         //if (_velocity < TerminalVel)
         // _velocity = TerminalVel;
 
-        GetComponent<Rigidbody2D>().AddForce(new Vector2(0, _thrust), ForceMode2D.Force);
+        rb.AddForce(new Vector2(0, _thrust), ForceMode2D.Force);
+
+        rb.AddTorque(_torque, ForceMode2D.Impulse);
         //transform.Translate(new Vector3(0, _velocity * Time.fixedDeltaTime));
 
 
@@ -119,6 +124,7 @@ public class LanderControllerGame : MonoBehaviour
 
     private void UserCompute()
     {
+        _torque = -Input.GetAxisRaw("Horizontal") * 200;
         if (Input.GetKey(KeyCode.Alpha1))
             _thrust = 1f;
         else if (Input.GetKey(KeyCode.Alpha2))
