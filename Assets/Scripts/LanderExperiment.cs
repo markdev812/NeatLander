@@ -72,7 +72,7 @@ public class LanderExperiment : INeatExperiment
 
     public void Initialize(string name, XmlElement xmlConfig)
     {
-        Initialize(name, xmlConfig, 3, 1);
+        Initialize(name, xmlConfig, 5, 2);
     }
 
     public void Initialize(string name, XmlElement xmlConfig, int input, int output)

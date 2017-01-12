@@ -7,8 +7,9 @@ using UnityEngine.UI;
 public class LanderControllerGame : MonoBehaviour
 {
     public float StartingAltitude = 2400;
-    public float StartingFuel = 500;
-    public float Gravity = -3.711f;
+    public const float RangeX = 400;
+    public const float StartingFuel = 500;
+    public readonly Vector2 Gravity = new Vector2(0, -3.711f);
     public const float TerminalVel = -200;
 
     public int NumInputs;
@@ -25,9 +26,10 @@ public class LanderControllerGame : MonoBehaviour
     private bool _landed;
     private float _thrust;
     private float _fuel;
-    private float _velocity;
+    private Vector2 _velocity;
     private float lastTime = -1;
     private float _torque;
+    private float _rotation;
 
     private Rigidbody2D rb;
 
@@ -41,7 +43,7 @@ public class LanderControllerGame : MonoBehaviour
     {
 
 
-        Physics.gravity = new Vector3(0, Gravity, 0);
+        Physics.gravity = Gravity;// Vector3(0, Gravity, 0);
         rb = GetComponent<Rigidbody2D>();
 
         _experiment = new NeatExperiment();
@@ -49,7 +51,6 @@ public class LanderControllerGame : MonoBehaviour
         _box = _experiment.LoadChamp();
 
         _fuel = StartingFuel;
-
 
         _flame.Stop();
 
@@ -81,18 +82,24 @@ public class LanderControllerGame : MonoBehaviour
         _fuel -= _thrust * Time.fixedDeltaTime;
 
 
+        if (_rotation > 135)
+            _rotation = 135;
+        else if (_rotation < 45)
+            _rotation = 45;
 
+        //_velocity = rb.velocity.y;
 
-        _velocity = rb.velocity.y;
+        rb.rotation = _rotation - 90;
 
+        float a = _rotation * Mathf.Deg2Rad;
+        Vector2 rot = new Vector2(Mathf.Cos(a), Mathf.Sin(a));
 
-        //_velocity += ((_thrust + Gravity) * Time.fixedDeltaTime);
-        //if (_velocity < TerminalVel)
-        // _velocity = TerminalVel;
+        _velocity += rot * _thrust * Time.fixedDeltaTime;
+        _velocity += Gravity * Time.fixedDeltaTime;
 
-        rb.AddForce(new Vector2(0, _thrust), ForceMode2D.Force);
+        rb.AddForce(_velocity, ForceMode2D.Force);
 
-        rb.AddTorque(_torque, ForceMode2D.Impulse);
+        // rb.AddTorque(_torque, ForceMode2D.Impulse);
         //transform.Translate(new Vector3(0, _velocity * Time.fixedDeltaTime));
 
 
@@ -124,7 +131,7 @@ public class LanderControllerGame : MonoBehaviour
 
     private void UserCompute()
     {
-        _torque = -Input.GetAxisRaw("Horizontal") * 200;
+        _rotation += -Input.GetAxisRaw("Horizontal");
         if (Input.GetKey(KeyCode.Alpha1))
             _thrust = 1f;
         else if (Input.GetKey(KeyCode.Alpha2))
@@ -142,7 +149,7 @@ public class LanderControllerGame : MonoBehaviour
     private void UpdateUI()
     {
         TxtVelocity.text = _velocity.ToString("N1");
-        if (_velocity < -40)
+        if (_velocity.y < -40)
             TxtVelocity.color = Color.red;
         else
         {
@@ -162,7 +169,7 @@ public class LanderControllerGame : MonoBehaviour
         {
             _landed = true;
             _thrust = 0;
-            _velocity = 0;
+            _velocity = Vector2.zero;
             _flame.Stop();
 
         }
@@ -174,9 +181,9 @@ public class LanderControllerGame : MonoBehaviour
     {
         //if (_learningMode == false)
         //    GetComponent<Rigidbody2D>().velocity = Vector3.zero;
-        _velocity = 0f;
+        _velocity = Vector2.zero;
         transform.position = new Vector3(0, StartingAltitude, 0);
-
+        transform.rotation = Quaternion.identity;
         _fuel = StartingFuel;
 
 
@@ -190,20 +197,23 @@ public class LanderControllerGame : MonoBehaviour
 
     void AICompute()
     {
+        var rb = GetComponent<Rigidbody2D>();
         ISignalArray inputArr = _box.InputSignalArray;
         ISignalArray outputArr = _box.OutputSignalArray;
 
 
         //set inputs
         inputArr[0] = transform.position.y / StartingAltitude;
-        inputArr[1] = _velocity / TerminalVel;
-        inputArr[2] = _fuel / StartingFuel;
-        //inputArr[3] = (double)i / 100.0;
+        inputArr[1] = transform.position.y / StartingAltitude;
+        inputArr[2] = rb.velocity.x / TerminalVel;
+        inputArr[3] = rb.velocity.y / TerminalVel;
+        inputArr[4] = _fuel / StartingFuel;
 
         _box.Activate();
 
         _thrust = (float)Math.Round(outputArr[0] * 4); //Math.Floor(outputArr[0] * 4.0);
                                                        //Ship.Thrust = 3.42;
+        _rotation = (float)outputArr[1] * 360f;
     }
 
 
